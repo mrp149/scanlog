@@ -225,7 +225,8 @@ func makedates() {
 		delta := (duration.Nanoseconds() / 1000000000)
 		args.fromTime = seconds - delta
 		args.toDate = fmt.Sprint(now)
-		args.fromDate = fmt.Sprint(now.Add(time.Minute * -15))
+		dt := -time.Duration(delta)
+		args.fromDate = fmt.Sprint(now.Add(time.Second * dt))
 
 	} else {
 
@@ -314,11 +315,9 @@ var (
 	fromparam = options.String("from", "", "set begin date of the filter")
 	toparam   = options.String("to", "", "set end date of the filter")
 	past      = options.String("past", "15m", "define time interval from now to past, e.g. 1h15m")
-
-	maxtop = options.Int("m", 5, "set limit on top-list reports")
-	// not yet
-	//	output = options.String("o", "", "redirect output to the file")
-	help = options.Bool("h", false, "print help information")
+	maxtop    = options.Int("m", 5, "set limit on top-list reports")
+	output    = options.String("o", "", "redirect output to the file")
+	help      = options.Bool("h", false, "print help information")
 )
 
 func main() {
@@ -403,7 +402,7 @@ func run() int {
 
 	args.maxtop = *maxtop
 	args.inputFiles = options.Args()
-	//	args.outputFile = *output
+	args.outputFile = *output
 
 	makedates()
 
@@ -458,6 +457,17 @@ func runrun() (err error) {
 	if debug {
 		fmt.Println("running report ...")
 	}
-	reporter()
+
+	if args.outputFile != "" {
+		f, err := os.Create(args.outputFile)
+		if err != nil {
+			return err
+		}
+		os.Stdout = f
+		reporter()
+		f.Close()
+	} else {
+		reporter()
+	}
 	return nil
 }

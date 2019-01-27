@@ -1,7 +1,7 @@
 package main
 
 // by mikhailp@acm.org
-// 
+//
 // TODO
 // replace Stdout -> Stderr, outputFile
 
@@ -385,10 +385,8 @@ func check_time_range(rp *Rec, fromtime int64, totime int64) bool {
 	   example, how many builds were executed in the last 15 minutes, or in the last day, or between
 	   January 1 and January 31, 2018.
 
-
 	   - The marketing department wants to know which users are using the remote build service the
 	   most. Who are the top 5 users and how many builds have they executed in the time window?
-
 
 	   - The marketing department would like to know the build success rate, and for builds that are not
 	   succeeding what are the top exit codes.
@@ -492,18 +490,21 @@ func count_success_rate(max int) {
 	}
 
 	succsess_rate := 100
+	if total_records == 0 {
+		succsess_rate = 0
+	}
 
 	if failed > 0 {
 		succsess_rate = (total_records - failed) * 100 / total_records
 	}
 
-	fmt.Printf("Succsess rate:  %7d%%\n", succsess_rate)
-	fmt.Printf("   jobs total:  %7d\n", total_records)
+	fmt.Printf(" Succsess rate: %7d%%\n", succsess_rate)
+	fmt.Printf("    jobs total:  %7d\n", total_records)
 
 	if failed > 0 {
 
-		fmt.Printf("   succseeded:  %7d\n", total_records-failed)
-		fmt.Printf("       failed:  %7d\n", failed)
+		fmt.Printf("    succseeded:  %7d\n", total_records-failed)
+		fmt.Printf("        failed:  %7d\n", failed)
 		header := "\nList of exit codes\n"
 		header += " Rank Error  Count\n"
 		header += "+----+-----+------+"
@@ -541,7 +542,7 @@ func count_top_users(max int) {
 		}
 		tm := timecond(rp.ts, rp.te, args.fromTime, args.toTime)
 		if tm > 0 { // time  and space was consumed
-			workmap[rp.uid].time += (tm / 60)
+			workmap[rp.uid].time += tm
 			workmap[rp.uid].space += rp.imgsz
 		}
 		if timecond(rp.te, rp.te+1, args.fromTime, args.toTime) > 0 { // exits on error
@@ -584,7 +585,7 @@ func count_top_users(max int) {
 		maxtop := max
 		header := "\nList of most active users\n"
 		header += " Rank      UserID                 Jobs\n"
-		header += "+----+-------------------------+------+"
+		header += "+----+-------------------------+-----------+"
 		fmt.Println(header)
 
 		lasttop := 0
@@ -595,7 +596,7 @@ func count_top_users(max int) {
 			} else {
 				lasttop = toplist[i].v
 
-				fmt.Printf("%4d  %12s %7d\n", i+1, username(toplist[i].k), toplist[i].v)
+				fmt.Printf("%4d  %12s %12d\n", i+1, username(toplist[i].k), toplist[i].v)
 				maxtop--
 			}
 		}
@@ -616,8 +617,8 @@ func count_top_users(max int) {
 	if len(toplist) >= 0 {
 		maxtop := max
 		header := "\nList of most productive users\n"
-		header += " Rank      UserID               Minutes\n"
-		header += "+----+-------------------------+------+"
+		header += " Rank      UserID                 Time\n"
+		header += "+----+-------------------------+----------+"
 		fmt.Println(header)
 
 		lasttop := 0
@@ -627,8 +628,8 @@ func count_top_users(max int) {
 				break
 			} else {
 				lasttop = toplist[i].v
-
-				fmt.Printf("%4d  %12s %7d\n", i+1, username(toplist[i].k), toplist[i].v)
+				fmt.Printf("%4d  %12s %12s\n", i+1, username(toplist[i].k),
+					time.Duration.String(time.Second*time.Duration(toplist[i].v)))
 				maxtop--
 			}
 		}
@@ -649,8 +650,8 @@ func count_top_users(max int) {
 	if len(toplist) >= 0 {
 		maxtop := max
 		header := "\nList of most troubled users\n"
-		header += " Rank      UserID              Crashes\n"
-		header += "+----+-------------------------+------+"
+		header += " Rank      UserID                 Crashes\n"
+		header += "+----+-------------------------+-----------+"
 		fmt.Println(header)
 
 		lasttop := 0
@@ -661,11 +662,49 @@ func count_top_users(max int) {
 			} else {
 				lasttop = toplist[i].v
 
-				fmt.Printf("%4d  %12s %7d\n", i+1, username(toplist[i].k), toplist[i].v)
+				fmt.Printf("%4d  %12s %12d\n", i+1, username(toplist[i].k), toplist[i].v)
 				maxtop--
 			}
 		}
 	}
+}
+
+func diskspace(value int64, toUnit string) string {
+	toUnit = strings.TrimSuffix(strings.ToLower(toUnit), "s")
+
+	if toUnit == "minimum" || toUnit == "auto" {
+		switch {
+		case value < 1024:
+			toUnit = "b"
+		case value < 1024*1024:
+			toUnit = "kb"
+		case value < 1024*1024*1024:
+			toUnit = "mb"
+		case value < 1024*1024*1024*1024:
+			toUnit = "gb"
+		case value < 1024*1024*1024*1024*1024:
+			toUnit = "tb"
+		default:
+			toUnit = "pb"
+		}
+	}
+
+	var output float64
+	switch toUnit {
+	default:
+		output, toUnit = float64(value), "B"
+	case "kb", "kbyte", "kilobyte":
+		output, toUnit = float64(value)/1024, "kB"
+	case "mb", "mbyte", "megabyte":
+		output, toUnit = float64(value)/(1024*1024), "MB"
+	case "gb", "gbyte", "gigabyte":
+		output, toUnit = float64(value)/(1024*1024*1024), "GB"
+	case "tb", "tbyte", "terabyte":
+		output, toUnit = float64(value)/(1024*1024*1024*1024), "TB"
+	case "pb", "pbyte", "petabyte":
+		output, toUnit = float64(value)/(1024*1024*1024*1024*1024), "PB"
+	}
+	return fmt.Sprintf("%.3f", output) + toUnit
 }
 
 func report(r string, max int) {
@@ -705,17 +744,17 @@ func report(r string, max int) {
 				}
 			}
 
-			fmt.Println("     All totals\n")
-			fmt.Println("  recorded jobs:", tot.total)
-			fmt.Println("      submitted:", tot.submitted)
-			fmt.Println("        running:", tot.running)
-			fmt.Println("        started:", tot.started)
-			fmt.Println("       finished:", tot.ended)
-			fmt.Println("        crashed:", tot.crashed)
-			fmt.Println("       canceled:", tot.canceled)
-			fmt.Println("   used minutes:", tot.timeused)
-			fmt.Println("used disk space:", tot.spaceused)
-			fmt.Println("   active users:", tot.active)
+			fmt.Println(" All totals are\n")
+			fmt.Println(" recorded jobs:", tot.total)
+			fmt.Println("     submitted:", tot.submitted)
+			fmt.Println("       running:", tot.running)
+			fmt.Println("       started:", tot.started)
+			fmt.Println("      finished:", tot.ended)
+			fmt.Println("       crashed:", tot.crashed)
+			fmt.Println("      canceled:", tot.canceled)
+			fmt.Println("     time used:", time.Duration.String(time.Second*time.Duration(tot.timeused)))
+			fmt.Println("    space used:", diskspace(tot.spaceused, "auto"))
+			fmt.Println("  active users:", tot.active)
 
 			fmt.Println("\n    Total jobs:", i)
 		}
@@ -761,8 +800,8 @@ func initscaner() {
 func reporter() {
 
 	max := args.maxtop
-	fmt.Println("Report summary on build logs generated on:", time.Now(), "\n\nFilter setings are:")
-	fmt.Println("  From date:", args.fromDate, "\n    To date:", args.toDate, "\n  Maxtop limit:", args.maxtop)
+	fmt.Println("Report summary on build logs generated on:", time.Now(), "\n\nFilter setings:")
+	fmt.Println("     From date:", args.fromDate, "\n       To date:", args.toDate, "\n  Maxtop limit:", args.maxtop)
 	fmt.Println("\n")
 
 	if args.act {
