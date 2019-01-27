@@ -256,11 +256,11 @@ func init() {
 
 var (
 	options   = flag.NewFlagSet("options", flag.ContinueOnError)
-	fromparam = options.String("from", "", "set begin date of the filter")
-	toparam   = options.String("to", "", "set end date of the filter")
-	past      = options.String("past", "15m", "define time interval from now to past, e.g. 1h15m")
-	maxtop    = options.Int("m", 5, "set limit on top-list reports")
-	output    = options.String("o", "", "redirect output to the file")
+	fromparam = options.String("from", "", "set starting date of the filter")
+	toparam   = options.String("to", "", "set ending date of the filter")
+	past      = options.String("past", "15m", "define time interval from now to a past event, e.g. 1h15m")
+	maxtop    = options.Int("m", 5, "set up cut-off limit in top-list reports")
+	output    = options.String("o", "", "redirect output to the listed file")
 	help      = options.Bool("h", false, "print help information")
 )
 
