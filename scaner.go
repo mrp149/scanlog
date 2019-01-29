@@ -402,33 +402,33 @@ func check_time_range(rp *Rec, fromtime int64, totime int64) bool {
 		// totals
 		tot.total++
 
-		//	submitted int
+		//	submitted jobs
 		if timecond(rp.tj, rp.tj+1, fromtime, totime) > 0 {
 			tot.submitted++
 		}
-		//	running int
+		//	running jobs
 		tm := timecond(rp.ts, rp.te, fromtime, totime)
 		if tm > 0 {
 			tot.running++
-			//	timused int
-			//	spaceused int
-			tot.timeused += (tm / 60)
+			//	timused in seconds
+			//	spaceused in bytes
+			tot.timeused += tm 
 			tot.spaceused += rp.imgsz
 
 		}
-		//	started int
+		//	started jobs
 		if timecond(rp.ts, totime+1, fromtime, totime) > 0 {
 			tot.started++
 		}
-		//	ended int
+		//	ended jobs
 		if timecond(rp.te, rp.te+1, fromtime, totime) > 0 {
 			tot.ended++
 		}
-		//      cancel int
+		//      cancel jobs
 		if rp.cancel {
 			tot.canceled++
 		}
-		//	crashed int
+		//	crashed jobs
 		if rp.exit != 0 {
 			tot.crashed++
 		}

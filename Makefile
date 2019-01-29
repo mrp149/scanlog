@@ -11,7 +11,7 @@ scanlog: $(scanlog)
 
 
 run:  $(scanlog)
-	go run $(scanlog) < logs
+	go run $(scanlog) top  one logs
 
 fmt:  $(scanlog)
 	go fmt $(scanlog)
