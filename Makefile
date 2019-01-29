@@ -1,8 +1,5 @@
 
 
-
-
-#scanlog = scandecl.go scanscan1.go mainscan.go
 scanlog = main.go scaner.go
 
 
