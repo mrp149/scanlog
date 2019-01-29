@@ -10,8 +10,8 @@ scanlog: $(scanlog)
 	go build -o $@ $(scanlog)
 
 
-run:  $(scanlog)
-	go run $(scanlog) top  one logs
+run:  $(scanlog) log logs
+	go run $(scanlog) top  log logs
 
 fmt:  $(scanlog)
 	go fmt $(scanlog)
