@@ -10,7 +10,8 @@ import (
 
 var debug bool = false
 
-// by mikhailp@acm.org
+//
+// by mikhailp at acm dot org
 //
 
 type Params struct {

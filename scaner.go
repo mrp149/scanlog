@@ -1,9 +1,10 @@
 package main
 
-// by mikhailp@acm.org
+//
+// by mikhailp at acm dot org
 //
 // TODO
-// replace Stdout -> Stderr, outputFile
+//
 
 import (
 	"bufio"
