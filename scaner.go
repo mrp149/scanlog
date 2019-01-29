@@ -266,7 +266,7 @@ func scanlogfile(file *os.File) {
 				{
 					n, err := fmt.Sscanf(fld[i], "%d", &imgsz)
 					if err != nil || n != 1 {
-						fmt.Fprintln(os.Stderr, "bad imagesize field:", fld[i], err)
+						fmt.Fprintln(os.Stderr, "bad image-size field:", fld[i], err)
 						ignore++
 					}
 					rc.imgsz = imgsz
@@ -393,9 +393,6 @@ func check_time_range(rp *Rec, fromtime int64, totime int64) bool {
 	   succeeding what are the top exit codes.
 	*/
 
-	//	tj := time.Time.Unix(r.tj)
-	//	te := time.Time.Unix(r.te)
-
 	if timecond(rp.tj, rp.te, fromtime, totime) > 0 {
 		// before returning do accounif of the selected record
 
@@ -410,9 +407,9 @@ func check_time_range(rp *Rec, fromtime int64, totime int64) bool {
 		tm := timecond(rp.ts, rp.te, fromtime, totime)
 		if tm > 0 {
 			tot.running++
-			//	timused in seconds
+			//	timeused in seconds
 			//	spaceused in bytes
-			tot.timeused += tm 
+			tot.timeused += tm
 			tot.spaceused += rp.imgsz
 
 		}
@@ -504,7 +501,7 @@ func count_success_rate(max int) {
 
 	if failed > 0 {
 
-		fmt.Printf("    succseeded:  %7d\n", total_records-failed)
+		fmt.Printf("     succeeded:  %7d\n", total_records-failed)
 		fmt.Printf("        failed:  %7d\n", failed)
 		header := "\nList of exit codes\n"
 		header += " Rank Error  Count\n"
@@ -534,11 +531,11 @@ func count_top_users(max int) {
 
 	workmap := make([]userEntry, len(usermap))
 
-	// collect statisitics
+	// collect statistics
 	for e := list.Head(); e != nil; e = list.Next(e) {
 		rp = list.Item(e)
 
-		if timecond(rp.tj, rp.tj+1, args.fromTime, args.toTime) > 0 { // submitions
+		if timecond(rp.tj, rp.tj+1, args.fromTime, args.toTime) > 0 { // submissions
 			workmap[rp.uid].jobs++
 		}
 		tm := timecond(rp.ts, rp.te, args.fromTime, args.toTime)
@@ -801,7 +798,7 @@ func initscaner() {
 func reporter() {
 
 	max := args.maxtop
-	fmt.Println("Report summary on build logs generated on:", time.Now(), "\n\nFilter setings:")
+	fmt.Println("Report summary on build logs generated on:", time.Now(), "\n\n Time interval:")
 	fmt.Println("     From date:", args.fromDate, "\n       To date:", args.toDate, "\n  Maxtop limit:", args.maxtop)
 	fmt.Println("\n")
 

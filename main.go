@@ -21,8 +21,8 @@ type Params struct {
 	rep        bool
 	bad        bool
 	maxtop     int
-	fromTime   int64 //unix format
-	toTime     int64 //unix format
+	fromTime   int64 // the time in unix format
+	toTime     int64 // the time in unix format
 	fromDate   string
 	toDate     string
 	rangeDate  string
@@ -82,14 +82,14 @@ func scan_time(dt dateFmt) int64 {
 
 var from, to dateFmt
 
-// make guess on the date format
+// make a guess on the date format
 //
-// supported date formats and "from-to" combinations
+// The supported formats and "from-to" combinations
 //
-// A: "January _2 15:04:05 MST 2006"
-// B: "January _2 15:04:05 2006"
-// C: "January _2 2006"
-// D: "January _2"
+// A: "January 12 15:04:05 MST 2006"
+// B: "January 12 15:04:05 2006"
+// C: "January 12 2006"
+// D: "January 12"
 //
 //  from {D}      to {A|B|C}   from will have the same year as to
 //  from {A|B|C}  to {A|B|C}
@@ -102,7 +102,7 @@ func guess_format(date *string) *dateFmt {
 	var n = 0
 	guess := new(dateFmt)
 
-	// repack the date and guess what is the format
+	// repack the date and then make a guess what is the format
 	for _, t := range strings.Split(*date, " ") {
 		if t != "" {
 			if s != "" {
@@ -151,10 +151,10 @@ func makedates() {
 	var now time.Time = time.Now()
 
 	// from, to and past combinations
-	//    from to:   ftom  -> to
+	//    from to:   from  -> to
 	//    past:      now-past -> now
-	//    from past: from-past -> from  !! regected
-	//    to past:   to-past -> to    !! regected
+	//    from past: from-past -> from  !! rejected
+	//    to past:   to-past -> to    !! rejected
 
 	// from, to and past combinations
 
@@ -184,7 +184,7 @@ func makedates() {
 
 				fmt.Println(now.Zone())
 			}
-			//from-to no year
+			//from-to with no year field
 			if to.nfmt == 2 && from.nfmt == 2 { // add current year
 				from.dstr += (" " + fmt.Sprint(now.Year()))
 				from.format = TEST3
@@ -196,14 +196,14 @@ func makedates() {
 
 			t := scan_time(*to)
 			if t == 0 {
-				fmt.Fprintln(os.Stderr, "to format looks wong")
+				fmt.Fprintln(os.Stderr, "to format looks wrong")
 			}
 			args.toTime = t
 			args.toDate = fmt.Sprint(to.time)
 
 			//from-to case from="January 1" to="January 12 2018"
 			if from.nfmt == 2 { // no year?
-				if to.nfmt >= 3 { // let's the same year from to, if it has one
+				if to.nfmt >= 3 { // the same year from to, if it has one
 					from.dstr += (" " + to.year)
 					from.format = TEST3
 					from.nfmt++
@@ -218,10 +218,12 @@ func makedates() {
 			args.fromDate = fmt.Sprint(from.time)
 		}
 
-		if *toparam != "" && *fromparam == "" { // to and past case
+		if *toparam != "" && *fromparam == "" { // "to" and "past" used
 			if *past == "" {
 				fmt.Fprintln(os.Stderr, "past flag is expected")
 			}
+			// ideally past-to and past-from combinations could represents
+			// time intervals defined as {to-past, to} and {from, from+past}
 			fmt.Fprintln(os.Stderr, "past-to combination not implemented")
 		}
 	}
@@ -295,7 +297,6 @@ func run() int {
 		return 1
 	}
 
-	//	args := new(Params)
 	setup_defaults()
 
 	switch os.Args[1] {
